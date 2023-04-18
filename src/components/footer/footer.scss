@@ -1,0 +1,43 @@
+.footer {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(24, 104, 183);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 30px 0px 20px 0px;
+  .footer-container {
+    height: 98%;
+    width: 90vw;
+    .footer-topic {
+      width: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 !important;
+      .mailing {
+      }
+      .form-input {
+      }
+      .socials {
+        height: 100%;
+      }
+    }
+    .link-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .product-description {
+        height: 100%;
+      }
+      .quick-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
