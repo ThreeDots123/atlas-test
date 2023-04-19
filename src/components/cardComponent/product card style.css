@@ -22,7 +22,7 @@
 .details {
   background-color: #fff;
   border-radius: 10px;
-  padding: 20px;
+  padding: 20px 20px 41px;
   position: absolute;
   top: 75%;
   right: 0;
@@ -30,9 +30,9 @@
   transition: box-shadow 0.3s ease-in-out, top 0.3s ease-in-out;
 }
 
-.productcard:hover .details {
-  box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
-  top: 40%;
+.details:hover {
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.3);
+    top: 40%;
 }
 
 .details > .min-details,
@@ -47,7 +47,7 @@
   justify-content: space-between;
 }
 
-.details > .min-details > h1 > span {
+.details > .min-details > h1 {
   font-size: 0.9rem;
 }
 
