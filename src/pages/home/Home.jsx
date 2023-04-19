@@ -30,7 +30,6 @@ function Home() {
     <>
       <Navbar home navbar={navbar} setNavbar={setNavbar} active="active" />
       <div className="body" style={{
-          backgroundColor: "#c6e2f2", 
           height: "100vh",
           display: "flex"
         }}>

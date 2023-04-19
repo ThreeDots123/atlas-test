@@ -10,6 +10,24 @@ import { Grid, Stack, Rating, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart } from "../../redux/actions/cartAction";
+import "./product card style.css"
+
+import image from "./pexels-andrea-piacquadio-3771088-min.jpg"
+
+function InnerCard() {
+  return <div className="productcard">
+    <figure>
+      <img src={image} alt="product name" />
+    </figure>
+    <section className="details">
+      <div className="min-details">
+        <h1>Remera </h1>
+        <h1 className="price">$45.99</h1>
+      </div>
+      <a href="#" className="addtocartbtn">add to cart</a>
+    </section>
+  </div>
+}
 
 
 export default function ProductCard({ data, addToCart }) {
@@ -27,63 +45,7 @@ export default function ProductCard({ data, addToCart }) {
 
   return (
     <Grid item sx={{ margin: "0px !important" }}>
-      <Card sx={{ width: { md: 300, sm: 200, xs: 300 } }} component="div">
-        <CardMedia
-          component="img"
-          alt={data.title}
-          height="150"
-          image={data.img_1}
-        />
-        <CardContent>
-          <Stack direction="row" justifyContent="space-between">
-            <Typography gutterBottom sx={{ fontWeight: "600" }}>
-              {data.title}
-            </Typography>
-            <Typography sx={{ fontWeight: "600" }}>
-              <span>&#8358;</span>
-              {data.price}
-            </Typography>
-          </Stack>
-          {/* <Typography variant="body2" color="text.secondary">
-            hello
-          </Typography> */}
-        </CardContent>
-        <CardActions
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderTopRightRadius: "20px",
-            borderTopLeftRadius: "20px",
-            background: "rgb(24, 104, 183)",
-          }}
-          component="div"
-        >
-          <Button
-            size="small"
-            sx={{ color: "white" }}
-            onClick={() => navigate(`/product/${data.id}`)}
-          >
-            View details
-          </Button>
-          {/* <LoadingButton
-                        loading={adding ? true : false}
-                        variant="outlined"
-                        sx={{ "&:focus": { outline: "none" },color: "white"  }}
-                        onClick={addToCart}
-                        disabled={book?.book?.stock === 0}
-                      >
-                        <Typography variant="h5">Add to cart</Typography>
-                      </LoadingButton> */}
-          <Button
-            size="small"
-            sx={{ color: "white" }}
-            onClick={() => addToCart(data.id)}
-          >
-            Add to Cart
-          </Button>
-        </CardActions>
-      </Card>
+      <InnerCard />
     </Grid>
   );
 }

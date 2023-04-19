@@ -12,6 +12,7 @@ import {
   ListItemButton,
   Pagination,
   ListItemText,
+  Divider,
 } from "@mui/material";
 import { categories } from "../../../utils/stateData";
 import AppsIcon from "@mui/icons-material/Apps";
@@ -88,6 +89,7 @@ function BrandProoducts({
 
   return (
     <Box sx={{ marginTop: "20px" }}>
+      <Divider sx={{width: "97%", margin: "auto"}} />
       <Box
         sx={{
           width: "100%",
@@ -113,7 +115,7 @@ function BrandProoducts({
         justifyContent="space-evenly"
       >
         <Paper
-          elevation={24}
+          elevation={0}
           sx={{
             transition: "0.5s",
             width: `${toggle ? "23%" : "0%"}`,
@@ -159,7 +161,7 @@ function BrandProoducts({
           )}
         </Paper>
         <Paper
-          elevation={24}
+          elevation={0}
           sx={{
             margin: "0px !important",
             paddingBottom: "20px",

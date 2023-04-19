@@ -151,7 +151,7 @@ function BrandProoducts({ id }) {
               sx={{ padding: "0", margin: "0", width: "auto" }}
             >
               { dataLoading ? <ProductCardLoader /> :         
-                data.count > 0 ? data.detail.map(data => <BrandCard key={1} data={data} />) :
+                data.count > 0 ? data.detail.map((data, index) => <BrandCard key={index} data={data} />) :
                 <Box
                   sx={{
                     padding: "inherit",
