@@ -8,16 +8,10 @@
   line-height: 1.5;
 }
 body {
-  background: rgb(217, 244, 251);
   overflow-x: hidden;
   overflow-y: scroll;
   height: auto;
-  background: linear-gradient(
-    276deg,
-    rgba(217, 244, 251, 1) 7%,
-    rgba(244, 202, 238, 1) 52%,
-    rgba(217, 241, 247, 1) 92%
-  );
+
 
   /** NAVBAR**/
   .navbar {

@@ -160,6 +160,7 @@ function BrandProoducts({
             </Box>
           )}
         </Paper>
+        <Divider orientation="vertical" sx={{borderColor: "black"}} />
         <Paper
           elevation={0}
           sx={{
