@@ -1,7 +1,6 @@
 // import React, { useState, useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
 // import {
-//   Typography,
+  //   Typography,
 //   Stack,
 //   TextField,
 //   Box,
@@ -12,7 +11,7 @@
 
 // import { Link, useNavigate } from "react-router-dom";
 // import { LoadingButton } from "@mui/lab";
-// import { clearErrors, login } from "../../redux/actions/userActions";
+import { clearErrors, login } from "../../redux/actions/userActions";
 
 // function Signin() {
 //   const navigate = useNavigate();
@@ -34,7 +33,7 @@
 
 //   const handleSubmit = (e) => {
 //     e.preventDefault();
-//     dispatch(login(formData));
+    // dispatch(login(formData));
 //   };
 //   // const redirect = location.search ? location.search.split("=")[1] : "/";
 
@@ -158,10 +157,11 @@
 
 
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import { Alert } from '@mui/material';
+import { Alert, CircularProgress } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -175,15 +175,24 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Logo from '../../logo';
+import {baseUrl,origin} from "../../urls"
+import { useEffect } from "react";
 
 const theme = createTheme();
 const errorAlert = React.createRef()
 
 export default function SignIn() {
 
-  const [msg, setMsg] = React.useState("")
-
+  const { loading, isAuthenticated, logError } = useSelector(
+    (state) => state.auth
+  );
+  
+  const dispatch = useDispatch();
   const navigate = useNavigate()
+  const [msg, setMsg] = React.useState("")
+  const [submitting, setSubmitting] = React.useState(false)
+
+  
   const showError = (text) => {
     setMsg(text)
     errorAlert.current.style.display = "flex"
@@ -200,18 +209,40 @@ export default function SignIn() {
     function removeWhitespace(data){
       return data.replace(/ /g, "")
     }
-    const validate = Boolean(removeWhitespace(data.get("email")) && removeWhitespace(data.get("password")))
+    const email = data.get("email")
+    const password = data.get("password")
+    const validate = Boolean(removeWhitespace(email) && removeWhitespace(password))
     if(validate){
-      
-      // ensure passw
+      setSubmitting(true)
+      // make request to login
+      fetch(`${origin}/${baseUrl}/accounts/user/login?auth=password&type=web`, {
+        method: "POST",
+        body: JSON.stringify({email, password}),
+        headers: {"Content-Type": "application/json"},
+        credentials: "include"
+      }).then(response => response.json())
+      .then(data => {
+        if(data.success) {
+          const { detail: {access} } = data
+          dispatch(login(access))
+          navigate("/")
+        } else {
+          showError(data.detail)
+          setSubmitting(false)
+        }
+      })
+      .catch(err =>{
+        showError("Something went wrong")
+        setSubmitting(false)
+      })
     } else {
       // display alert
       showError("Please ensure that each input field is correctly filled")
     }
   };
 
-  return (
-    <ThemeProvider theme={theme}>
+  return <>
+    { isAuthenticated ? <Navigate to={"/"} /> : <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Typography
@@ -255,10 +286,10 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
+            /> */}
             <div style={{marginTop: "1rem", display: "flex", justifyContent: "flex-end", width: "100%"}}>
               <Alert style={{width: "95%", display: "none"}} ref={errorAlert} severity="error">
                 {msg}
@@ -266,13 +297,14 @@ export default function SignIn() {
             </div>
             <Button
               type="submit"
+              disabled={submitting}
               fullWidth
               variant="contained"
               style={{background: "#1f4172"}}
               sx={{ mt: 3, mb: 2 }}
               // ref = {btnRef}
             >
-              Sign In
+              { !submitting ? "sign in" : <CircularProgress size={"16px"} sx={{margin: "5px 0", color: "white"}} /> }
             </Button>
             <Grid container>
               <Grid item xs>
@@ -289,7 +321,6 @@ export default function SignIn() {
           </Box>
         </Box>
       </Container>
-      <LoadingButton loading={true} sx={{width: "100%" }}/>
-    </ThemeProvider>
-  );
+    </ThemeProvider>}
+  </>
 }

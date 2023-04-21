@@ -46,17 +46,28 @@ import {
   LOGOUT_FAIL,
 } from "../constants/userConstants";
 import axios from "axios";
+import { baseUrl, origin } from "../../urls";
+
+
+const findMe = async (access) => {
+  const response = await fetch(`${origin}/${baseUrl}/accounts/user/me`, {
+    method: "POST",
+    body: JSON.stringify({access}),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${access}`
+    }
+  })
+  const data = await response.json()
+  return data
+}
 
 //login
-export const login = (formData) => async (dispatch) => {
+export const login = (token) => async (dispatch) => {
   try {
     dispatch({ type: LOGIN_REQUEST });
-
-    const { data } = await axios.post("/api/v1/login", formData, {
-      withCredentials: true,
-      credentials: "include",
-    });
-    dispatch({ type: LOGIN_SUCCESS, payload: data.user });
+    const userInfo = await findMe(token)
+    dispatch({ type: LOGIN_SUCCESS, payload: userInfo});
   } catch (error) {
     dispatch({
       type: LOGIN_FAIL,
@@ -65,14 +76,11 @@ export const login = (formData) => async (dispatch) => {
   }
 };
 
-export const register = (formData) => async (dispatch) => {
+export const register = (token) => async (dispatch) => {
   try {
     dispatch({ type: REGISTER_USER_REQUEST });
-    const { data } = await axios.post("/api/v1/register", formData, {
-      withCredentials: true,
-      credentials: "include",
-    });
-    dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user });
+    const userInfo = await findMe(token)
+    dispatch({ type: REGISTER_USER_SUCCESS, payload: userInfo });
   } catch (error) {
     dispatch({
       type: REGISTER_USER_FAIL,
@@ -85,11 +93,17 @@ export const loadUser = () => async (dispatch) => {
   try {
     dispatch({ type: LOAD_USER_REQUEST });
 
-    const { data } = await axios.get("/api/v1/me", {
-      withCredentials: true,
-      credentials: "include",
-    });
-    dispatch({ type: LOAD_USER_SUCCESS, payload: data.user });
+    const response = await fetch(`${origin}/${baseUrl}/accounts/user/authorize/token?type=web`, {
+      method: "POST",
+      credentials: "include"
+    })
+    if (response.status === 200) {
+      const data = await response.json()
+      const { access: { access } } = data
+      // Pass Access Token To Find User Info
+      const userInfo = await findMe(access)
+      dispatch({ type: LOAD_USER_SUCCESS, payload: userInfo });
+    } else{ throw new Error("Not Authenticated") }
   } catch (error) {
     dispatch({ type: LOAD_USER_FAIL, payload: error.response.data.Message });
   }

@@ -36,7 +36,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { origin, baseUrl } from "../../urls";
 
-
 const days = [
   "Sun",
   "Mon",
@@ -158,7 +157,9 @@ function BrandDetail() {
         >
           {loading ?
             <Skeleton variant="rectanguler" sx={{ width: "100%", height: "inherit" }} /> : <>
-             { data.cover_img !== "No photo" ? <img style={{ width: "100%", height: "inherit" }} src={data.cover_img} alt={data.name} /> : 
+             { data.cover_img !== "No photo" ? <figure style={{height: "300px", width: "100%"}}>
+                <img style={{ width: "100%", height: "inherit", objectFit:"cover" }} src={data.cover_img} alt={data.name} />
+              </figure> :
               <Avatar sx={{ width: "100%", height: "inherit", borderRadius: "0px" }}>{data.name}</Avatar>} 
               <Box
                 sx={{

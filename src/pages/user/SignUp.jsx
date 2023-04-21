@@ -204,6 +204,7 @@
 
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -218,7 +219,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Logo from '../../logo';
-import { Alert } from '@mui/material';
+import { Alert, CircularProgress } from '@mui/material';
+import { baseUrl, origin } from '../../urls';
+import { register, clearErrors } from "../../redux/actions/userActions";
 
 
 const theme = createTheme();
@@ -234,9 +237,15 @@ export default function SignUp() {
     password: null,
   });
 
-  const [msg, setMsg] = React.useState("") 
+  const { loading, isAuthenticated, logError } = useSelector(
+    (state) => state.auth
+  );
 
+  const dispatch = useDispatch();
   const navigate = useNavigate()
+  const [msg, setMsg] = React.useState("") 
+  const [submitting, setSubmitting] = React.useState(false)
+
   const showError = (text) => {
     setMsg(text)
     errorAlert.current.style.display = "flex"
@@ -244,6 +253,12 @@ export default function SignUp() {
       errorAlert.current.style.display = "none"
     }, 1500)
   }
+
+  React.useEffect(() => {
+    if(isAuthenticated) {
+      navigate("/")
+    }
+  })
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -253,10 +268,36 @@ export default function SignUp() {
     function removeWhitespace(data){
       return data.replace(/ /g, "")
     }
-    const validate = Boolean(removeWhitespace(data.get("firstName")) && removeWhitespace(data.get("lastName")) && removeWhitespace(data.get("email")) && removeWhitespace(data.get("password")))
+
+    const email = data.get("email")
+    const password = data.get("password")
+    const last_name = data.get("lastName")
+    const first_name = data.get("firstName")
+
+    const validate = Boolean(removeWhitespace(first_name) && removeWhitespace(last_name) && removeWhitespace(email) && removeWhitespace(password))
     if(validate){
-      
-      // ensure passw
+      setSubmitting(true)
+      // make request to register
+      fetch(`${origin}/${baseUrl}/accounts/user/register?auth=password&type=web`, {
+        method: "POST",
+        body: JSON.stringify({first_name, last_name, email, password}),
+        headers: {"Content-Type": "application/json"},
+        credentials: "include"
+      }).then(response => response.json())
+      .then(data => {
+        if(data.success) {
+          const { detail: {access} } = data
+          dispatch(register(access))
+          navigate("/")
+        } else {
+          showError(data.detail)
+          setSubmitting(false)
+        }
+      })
+      .catch(err =>{
+        showError("Something went wrong, please try again")
+        setSubmitting(false)
+      })
     } else {
       // display alert
       showError("Please ensure that each input field is correctly filled")
@@ -331,6 +372,13 @@ export default function SignUp() {
                     autoComplete="new-password"
                   />
                 </Grid>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    sx={{marginLeft: "10px"}}
+                    control={<></>}
+                    label="After successful registeration, Check your mail to verify your account"
+                  />
+              </Grid>
                 <div  style={{marginTop: "1rem", display: "flex", justifyContent: "flex-end", width: "100%"}}>
                   <Alert style={{width: "95%", display: "none"}} ref={errorAlert} severity="error">
                     {msg}
@@ -344,7 +392,7 @@ export default function SignUp() {
                 sx={{ mt: 3, mb: 2 }}
                 style={{background: "#1f4172"}}
               >
-                Sign Up
+                { !submitting ? "sign up" : <CircularProgress size={"16px"} sx={{margin: "5px 0", color: "white"}} /> }
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>

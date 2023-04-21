@@ -37,6 +37,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import Logo from "../../logo";
+import Cart from "../cart"
 
 function Navbar({ home=false, navbar, setNavbar, active }) {
   const [open, setOpen] = useState(false);
@@ -49,6 +50,9 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const { user, loading } = useSelector((state) => state.auth);
+  const [cartOpen, setCartOpen] = useState(false)
+
+  console.log(user)
 
   // Navbar scroll change background color function
   const changeBackground = () => {
@@ -246,10 +250,10 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
               <ListItemButton onClick={handleProfileNav}>
                 <ListItemIcon>
                   <ListItemAvatar>
-                    <Avatar alt={user.name} src={user?.avatar?.url} />
+                    <Avatar alt={user.last_name} src={user.profile_image} />
                   </ListItemAvatar>
                 </ListItemIcon>
-                <ListItemText primary={user.name} secondary="view Profile" />
+                <ListItemText primary={`${user.first_name} ${user.last_name}`} secondary="view Profile" />
               </ListItemButton>
             </ListItem>
             <Divider />
@@ -334,8 +338,8 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
             aria-label="account of current user"
             aria-controls={menuId}
             aria-haspopup="true"
-            avatar={<Avatar alt={user.name} src={user?.avatar?.url} />}
-            label={`${user.name}`}
+            avatar={<Avatar alt={user} src={user.profile_image} />}
+            label={`${user.first_name}`}
             variant="outlined"
             sx={{ fontSize: "10px" }}
           />
@@ -343,20 +347,20 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
 
         <IconButton
           onClick={() => {
-            navigate("/cart");
+            setCartOpen(true);
           }}
           sx={{ "&:focus": { outline: "none" } }}
         >
           <Badge
             badgeContent={cartItems ? cartItems.length : "0"}
-            sx={{ color: "rgb(24, 104, 183)" }}
-            color="secondary"
+            sx={{ color: "rgb(24, 104, 183)"}}
+            color="primary"
           >
             <ShoppingCartIcon sx={{ color: "#1f4172", fontSize: "1.3em" }} />
           </Badge>
         </IconButton>
-
       </ButtonGroup>
+      <Cart open={cartOpen} setOpen={setCartOpen} />
       <SearchDrawer anchor="top" open={openSearch}>
         <Stack
           direction="row"

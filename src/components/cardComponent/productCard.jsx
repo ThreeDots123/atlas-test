@@ -12,16 +12,16 @@
 // import { addItemToCart } from "../../redux/actions/cartAction";
 
 
-// export default function ProductCard({ data, addToCart }) {
+// export default function ProductCard({ data }) {
 //   const navigate = useNavigate();
 //   const dispatch = useDispatch();
 //   const [cart, setCart] = useState(false);
 //   const { adding } = useSelector((state) => state.cart);
 
-//   // const addToCart = () => {
-//   //   dispatch(addItemToCart(id, count));
-//   //   setCart(true);
-//   // };
+//   const addToCart = () => {
+//     dispatch(addItemToCart("23380ccb-9be4-4414-ba46-9c22f78a1edc", 1));
+//     setCart(true);
+//   };
 
 //   data.price = parseFloat(data.price)
 
@@ -103,37 +103,39 @@ import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart } from "../../redux/actions/cartAction";
 import "./product card style.css"
 
-import image from "./pexels-andrea-piacquadio-3771088-min.jpg"
+function InnerCard({ data }) {
 
-function InnerCard() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [cart, setCart] = useState(false);
+
+  const addToCart = () => {
+    dispatch(addItemToCart(data.id, 1));
+    setCart(true);
+  };
+
   return <div className="productcard">
-    <figure onClick={() => navigate("/")}>
-      <img src={image} alt="product name" />
+    <figure >
+      <img onClick={() => navigate(`/product/${data.id}`)} src={data.image_1} alt="product name" />
     </figure>
     <section className="details">
       <div className="min-details">
-        <h1>Remera </h1>
-        <h1 className="price">$45.99</h1>
+        <h1>{data.title}</h1>
+        <h1 className="price">${data.price}</h1>
       </div>
-      <a href="#" className="addtocartbtn">add to cart</a>
+      <span onClick={addToCart} className="addtocartbtn">add to cart</span>
     </section>
   </div>
 }
 
 
-export default function ProductCard({ data, addToCart }) {
-
-  // const addToCart = () => {
-  //   dispatch(addItemToCart(id, count));
-  //   setCart(true);
-  // };
+export default function ProductCard({ data }) {
 
   data.price = parseFloat(data.price)
 
   return (
     <Grid item sx={{ margin: "0px !important" }}>
-      <InnerCard />
+      <InnerCard data={data} />
     </Grid>
   );
 }

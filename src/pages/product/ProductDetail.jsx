@@ -1,21 +1,21 @@
 import React, { useState, useEffect, forwardRef } from "react";
 // import { getProduct } from "../../redux/actions/productAction";
-// import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 // import { Container } from "@mui/system";
-// import {
-//   CircularProgress,
-//   Rating,
-//   Typography,
-//   Box,
-//   Button,
-//   ButtonGroup,
-//   IconButton,
-//   Stack,
-//   Alert,
-//   Snackbar,
-//   Divider,
-// } from "@mui/material";
-// import { useParams } from "react-router-dom";
+import {
+  CircularProgress,
+  Rating,
+  Typography,
+  Box,
+  Button,
+  ButtonGroup,
+  IconButton,
+  Stack,
+  Alert,
+  Snackbar,
+  Divider,
+} from "@mui/material";
+import { useParams } from "react-router-dom";
 // import AddIcon from "@mui/icons-material/Add";
 // import RemoveIcon from "@mui/icons-material/Remove";
 // import { LoadingButton } from "@mui/lab";
@@ -28,8 +28,8 @@ import React, { useState, useEffect, forwardRef } from "react";
 // import "swiper/css/scrollbar";
 // import RecommendedProducts from "./productComponents/RecommendedProducts";
 // import ProductReview from "./productComponents/productReview";
-// import { addItemToCart } from "../../redux/actions/cartAction";
-// import { baseUrl, origin } from "../../urls";
+import { addItemToCart } from "../../redux/actions/cartAction";
+import { baseUrl, origin } from "../../urls";
 
 // const SnackbarAlert = forwardRef(function SnackbarAlert(props, ref) {
 //   return <Alert severity="warning" elevation={6} ref={ref} {...props} />;
@@ -47,7 +47,6 @@ import React, { useState, useEffect, forwardRef } from "react";
 //   const [count, setCount] = useState(1);
 //   const { success } = useSelector((state) => state.review);
 //   const { adding } = useSelector((state) => state.cart);
-
 //   const { id } = params;
 //   const { loading, product, error } = useSelector(
 //     (state) => state.productDetail
@@ -85,7 +84,7 @@ import React, { useState, useEffect, forwardRef } from "react";
 //   };
 //   //handle couner
 //   const increaseQty = () => {
-//     if (count >= Number(product?.product?.stock)) {
+//     if (count >= Number(2)) {
 //       setOpen(true);
 //       return;
 //     } else {
@@ -317,55 +316,87 @@ import React, { useState, useEffect, forwardRef } from "react";
 
 // export default ProductDetail;
 
-import image from "./pexels-craig-adderley-1670045.jpg"
-import image2 from "./pexels-pavel-danilyuk-6407625-min.jpg"
 import { Container } from "@mui/material";
 import "./style.css"
 import Navbar from "../../components/navbar/Navbar";
 
-const ImageCarousel = () => {
+const SnackbarAlert = forwardRef(function SnackbarAlert(props, ref) {
+  return <Alert severity="warning" elevation={6} ref={ref} {...props} />;
+});
+
+const SnackbarAlert2 = forwardRef(function SnackbarAlert(props, ref) {
+  return <Alert severity="success" elevation={6} ref={ref} {...props} />;
+});
+
+const ImageCarousel = ({ img }) => {
   return <div className="product-image">
-    <img src={image2} alt="product"/>
+    <img src={img} alt="product"/>
   </div>
 }
 
-const ImageThumbnails = () => {
+const ImageThumbnails = ({ data, setImg, state }) => {
   return <div className='thumbnails'>
-    <img className= "image-selected" src={image} alt=" " />
-    <img src={image} alt=" " />
+    { data.image_1 !== "No Media" ? 
+      <img className={state === 1 ? "image-selected" : ""} src={data.image_1} alt="thumbnail 1" onClick={() => setImg({img:data.image_1, state:1})} /> : 
+      <></> 
+    }
+    { data.image_2 !== "No Media" ? 
+      <img className={state === 2 ? "image-selected" : ""} src={data.image_2} alt="thumbnail 2" onClick={() => setImg({img:data.image_2, state:2})} /> : 
+      <></> 
+    }
+    {/* { data.video !== "No Media" ? <img className= "image-selected" src={data.video} alt="thumbnail 3" /> : <></> } */}
   </div>
 }
 
-const ImageViewer = () => {
+const ImageViewer = ({ data }) => {
+  // const img = data.image_1 !== "No Media" ? data.image_1 : data.video
+  const [mainImage, setImage] = useState({ img:data.image_1, state: 1})
   return <div className="image-viewer">
-    <ImageCarousel />
-    <ImageThumbnails />
+    <ImageCarousel img={mainImage.img} />
+    <ImageThumbnails data={data} setImg={setImage} state={mainImage.state} />
   </div>
 }
 // ##############################
 
-const ProductInformation = () => {
+const ProductInformation = ({ data }) => {
+
   return  <div>
-    <h3 className='product-brand'>SNEAKER COMPANY</h3>
-    <h1 className='product-title'>Fall Limited Edition Sneakers</h1>
-    <p className='product-info'>These low-profile sneakers are your perfect casual wear companion. Featuring a durable rubber outer sole, they'll withstand everything the weather can offer.</p>
-    
-    <div className='prices'>
-    <div className='product-price'>
-    <h1>$125.00</h1>
-    <span>50%</span>
-    </div>
-    <span className="real-price">$250.00</span>
-    </div>
+      <h3 className='product-brand'>{data.brand}</h3>
+      <h1 className='product-title'>{data.title}</h1>
+      <p className='product-info'>{data.description}</p>
+      
+      <div className='prices'>
+        <div className='product-price'>
+          <h1>$125.00</h1>
+          {/* <span>50%</span> */}
+        </div>
+        {/* <span className="real-price">$250.00</span> */}
+      </div>
     
   </div>
 }
 
-const Counter = () => {
+const Counter = ({ counter, setCounter, setOpen, supply }) => {
+
+  const increaseQty = () => {
+    if (counter >= Number(supply)) {
+      setOpen(true);
+      return;
+    } else {
+      const qty = counter + 1;
+      setCounter(qty);
+    }
+  };
+  const decreaseQty = () => {
+    if (counter <= 1) return;
+    const qty = counter - 1;
+    setCounter(qty);
+  };
+
   return <div className='counter-container'>
-    <button className='minus'>-</button>
-      <span>{1}</span>
-    <button className='plus'>+</button>
+    <button onClick={decreaseQty} className='minus'>-</button>
+      <span>{counter}</span>
+    <button onClick={increaseQty} className='plus'>+</button>
   </div>
 }
 
@@ -378,28 +409,112 @@ const CartImg = (props) => {
   </svg>
 }
 
-const ProjectDescription = () => {
+const ProjectDescription = ({ counter, setCounter, setOpen, addToCart, data }) => {
   return <div className='product-description'>
-      <ProductInformation />
-          <div className="description-buttons">
-              <Counter />
-              <CustomButton className="addtocart-button">
-                <CartImg fill='white' className="cart-img" />
-              Add to cart</CustomButton>
-          </div>
-      </div>
+    <ProductInformation data={data} />
+    <div className="description-buttons">
+        <Counter counter={counter} setCounter={setCounter} setOpen={setOpen} supply={data.supply} />
+        <CustomButton onClick={addToCart} className="addtocart-button">
+          <CartImg fill='white' className="cart-img" />
+        Add to cart</CustomButton>
+    </div>
+  </div>
+}
+
+
+const Loader = () => {
+  return <div style={{height: "100%", width: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+    <CircularProgress />
+  </div> 
 }
 
 export default function ProductDetail () {
+
+  const dispatch = useDispatch();
+  const params = useParams();
+  const { id } = params;
+
   const [navbar, setNavbar] = useState(true);
-  return <div style={{backgroundColor: "white", height: "100vh"}}>
-    <Navbar navbar={navbar} setNavbar={setNavbar} active="active2" />
-    <Container sx={{paddingTop: "70px", paddingLeft: 0, paddingRight: 0}}>
-      {/* Buttons */}
-      <div className="product-page">
-        <ImageViewer />
-        <ProjectDescription />
-      </div>
-    </Container> 
-  </div> 
+  const [count, setCount] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [cart, setCart] = useState(false);
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState(null)
+
+  const addToCart = () => {
+    dispatch(addItemToCart(data.id, count));
+    setCart(true);
+  };
+
+  const handleClose = (e, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleClose2 = (e, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setCart(false);
+  };
+
+  useEffect(() => {
+    fetch(`${origin}/${baseUrl}/products/${id}`).then(response => {
+      if(response.status === 404) return {}
+      else return response.json()
+    }).then(data => {
+      if (data.success) {
+        const {detail} = data
+        // Search for brand name
+        fetch(`${origin}/${baseUrl}/brands/${detail.brand}`).then(response => {
+          return response.json()
+        }).then(apiData => {
+          detail.brand = apiData.detail.name
+          setData(detail)
+          setLoading(false)
+        })
+      } else {
+        setLoading(false)
+      }
+    })
+  }, [])
+
+  return <>
+    {loading ? <Loader /> : data ? <div style={{backgroundColor: "white", height: "100vh"}}>
+      <Navbar navbar={navbar} setNavbar={setNavbar} active="active2" />
+      <Container sx={{paddingTop: "70px", paddingLeft: 0, paddingRight: 0}}>
+        {/* Buttons */}
+        <div className="product-page">
+          <ImageViewer data={data} />
+          <ProjectDescription data={data} counter={count} setCounter={setCount} setOpen={setOpen} addToCart={addToCart} />
+        </div>
+      </Container>
+      <Snackbar
+        open={open}
+        autoHideDuration={1000}
+        onClose={handleClose}
+        sx={{ width: "300px" }}
+      >
+        <SnackbarAlert sx={{ width: "inherit" }}>
+          <Typography>Out of stock</Typography>
+        </SnackbarAlert>
+      </Snackbar>
+      <Snackbar open={cart} autoHideDuration={1000} onClose={handleClose2}>
+        <SnackbarAlert2>
+          <Typography>Item Added to cart</Typography>
+        </SnackbarAlert2>
+      </Snackbar>
+    </div> : <Box sx={{ padding: "inherit", margin: "auto", width: "inherit", height: "50vh", display: "flex", alignItems: "center", justifyContent: "center", }}>
+      <Typography sx={{
+        fontWeight: "800",
+        fontSize: "2em",
+        textAlign: "center",
+      }} >
+        No Product found
+      </Typography>
+    </Box>
+    } 
+  </> 
 }

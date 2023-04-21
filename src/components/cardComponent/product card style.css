@@ -52,6 +52,13 @@
   font-family: "Chivo Mono";
 }
 
+.details > .min-details > h1:first-child{
+  width: 100px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .details > .options h1 {
   margin-bottom: 5px;
 }

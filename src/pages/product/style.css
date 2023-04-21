@@ -50,6 +50,7 @@ button:focus {
     max-width: 100%;
     max-height: 100%;
     border-radius: 1rem;
+    height: 58.47px;
 }
 
 .thumbnails img:hover {
@@ -64,6 +65,7 @@ button:focus {
 
 .product-info {
     font-family: "Montserrat";
+    margin: 20px 0;
 }
 
 
