@@ -6,6 +6,7 @@ import Navbar from "../../components/navbar/Navbar";
 import Swiper from "../../components/swiper/Swiper";
 import CardSlider from "./cardSlider/CardSlider";
 import Trending from "./trending/Trending";
+import { Container } from "@mui/material";
 import { getBrandsInLocation } from "../../redux/actions/brandAction";
 import { useDispatch, useSelector } from "react-redux";
 import BrandCard from "../../components/cardComponent/brandCard";
@@ -29,22 +30,24 @@ function Home() {
   return (
     <>
       <Navbar home navbar={navbar} setNavbar={setNavbar} active="active" />
-      <div className="body" style={{
-          height: "100vh",
-          display: "flex"
-        }}>
-        <div style={{margin: "auto"}}>
-          <h1 style={{
-            marginBottom: "30px", 
-            fontFamily:"Righteous",
-            fontSize: "57px",
-            textAlign: "center"
-          }}>Access a brand from anywhere</h1>
-          <div style={{width: "100%", maxWidth: "600px", margin: "auto"}}>
-            <PrimarySearchAppBar />
+      <Container>
+        <div className="body" style={{
+            height: "100vh",
+            display: "flex"
+          }}>
+          <div style={{margin: "auto"}}>
+            <Typography variant="h2" sx={{
+              marginBottom: "30px", 
+              fontFamily:"Righteous",
+              fontSize: { sm:"10vw", md:"57px" },
+              textAlign: "center"
+            }}>Access a brand from anywhere</Typography>
+            <div style={{width: "100%", maxWidth: "600px", margin: "auto"}}>
+              <PrimarySearchAppBar />
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </>
   );
 }
