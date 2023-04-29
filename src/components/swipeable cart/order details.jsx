@@ -29,6 +29,8 @@ import store from '../../redux/store';
 import { loadUser } from '../../redux/actions/userActions';
 import { removeItemFromcart } from '../../redux/actions/cartAction';
 
+let amt_to_charge = 0
+
 
 function AddressForm({ setAddress, address }) {
 
@@ -161,29 +163,33 @@ function Review({ products, address }) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
     let charges = 0
+
     products.forEach(product => {
 
-      if ( product.price >= 500 && product.price <= 2000 ) {
+      const total_amt = product.price * product.quantity
+      
+      if ( total_amt >= 500 && total_amt <= 2000 ) {
         charges += 50
-      } else if ( product.price > 2000 && product.price <= 4000 ) {
+      } else if ( total_amt > 2000 && total_amt <= 4000 ) {
+        console.log()
         charges += 75
-      } else if ( product.price > 4000 && product.price <= 7000 ) {
+      } else if ( total_amt > 4000 && total_amt <= 7000 ) {
         charges += 95
-      } else if ( product.price > 7000 && product.price <= 12000 ) {
+      } else if ( total_amt > 7000 && total_amt <= 12000 ) {
         charges += 120
-      } else if ( product.price > 12000 && product.price <= 17000 ) {
+      } else if ( total_amt > 12000 && total_amt <= 17000 ) {
         charges += 180
-      } else if ( product.price > 17000 && product.price <= 20000 ) {
+      } else if ( total_amt > 17000 && total_amt <= 20000 ) {
         charges += 200
-      } else if ( product.price > 20000 && product.price <= 25000 ) {
+      } else if ( total_amt > 20000 && total_amt <= 25000 ) {
         charges += 250
       } else {
         charges += 300
       }
     })
 
-
     let total = (products.reduce((sum, item) => sum + (item.price * item.quantity), 0)) + charges
+    amt_to_charge = total
     total = numberWithCommas(total)
 
   const addresses = [address.address_1, address.city, address.state];
@@ -408,14 +414,16 @@ export default function Checkout({ products ,setShipping }) {
         setCreatingOrder(true)
         setBtnDisabled(true)
 
+        console.log(user.email)
+
         // if payment with card is selcted make payment before orders are created
 
         if (payment.option === 0) {
           const paystack = new PaystackPop()
           paystack.newTransaction({
-            key: "pk_test_ee3c1c30b8fb1122e83dcc9495adcc145703efca",
-            email: "example@gmail.com",
-            amount: 10000,
+            key: "pk_live_e35f67fa7ade2b8a96188b2d2e8794bd10604cae",
+            email: user.email,
+            amount: amt_to_charge * 100,
             reference: "" + Math.floor(Math.random() * 100 * Date.now()),
             onSuccess: transaction => {
               fetch(`${origin}/${baseUrl}/orders/verifypayment`, {
