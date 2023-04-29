@@ -65,7 +65,6 @@ function BrandProoducts({
     const response = await fetch(`${origin}/${baseUrl}/products?brand=${id}`)
     if(response.status === 200) {
       const data = await response.json()
-      console.log(data)
       return data
     }
   }
@@ -90,7 +89,7 @@ function BrandProoducts({
   return (
     <Box sx={{ marginTop: "20px" }}>
       <Divider sx={{width: "97%", margin: "auto"}} />
-      <Box
+      {/* <Box
         sx={{
           width: "100%",
           display: "flex",
@@ -107,14 +106,14 @@ function BrandProoducts({
         >
           <AppsIcon sx={{ color: "black", width: "30px", height: "30px" }} />
         </IconButton>
-      </Box>
+      </Box> */}
 
       <Stack
         direction="row"
         sx={{ width: "100%" }}
         justifyContent="space-evenly"
       >
-        <Paper
+        {/* <Paper
           elevation={0}
           sx={{
             transition: "0.5s",
@@ -159,8 +158,7 @@ function BrandProoducts({
               </List>
             </Box>
           )}
-        </Paper>
-        <Divider orientation="vertical" sx={{borderColor: "black"}} />
+        </Paper> */}
         <Paper
           elevation={0}
           sx={{

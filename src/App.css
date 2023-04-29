@@ -17,7 +17,7 @@ body {
 body .navbar {
   position: fixed;
   width: 97.5%;
-  padding: 7px 500px 7px 12px;
+  padding: 7px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;

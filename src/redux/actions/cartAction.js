@@ -16,10 +16,10 @@ export const addItemToCart = (id, quantity) => async (dispatch, getState) => {
     payload: {
       product: detail.id,
       name: detail.title,
-      price: detail.price,
+      price: parseFloat(detail.price),
       image: detail.image_1,
       stock: detail.supply,
-      // seller: detail.user,
+      seller: detail.brand,
       quantity,
     },
   });

@@ -28,16 +28,20 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import DehazeIcon from "@mui/icons-material/Dehaze";
+import AddBusinessIcon from "@mui/icons-material/AddBusiness";
+import Logout from "@mui/icons-material/Logout"
 import MuiDrawer from "./Drawer";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../redux/actions/userActions";
+import { loadUser, logout } from "../../redux/actions/userActions";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import Logo from "../../logo";
-import Cart from "../cart"
+import Cart from "../swipeable cart/cart"
+import { origin, baseUrl } from "../../urls";
+import store from "../../redux/store";
 
 function Navbar({ home=false, navbar, setNavbar, active }) {
   const [open, setOpen] = useState(false);
@@ -52,7 +56,6 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
   const { user, loading } = useSelector((state) => state.auth);
   const [cartOpen, setCartOpen] = useState(false)
 
-  console.log(user)
 
   // Navbar scroll change background color function
   const changeBackground = () => {
@@ -190,9 +193,17 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
     if (Drawer) {
       setDrawer(false);
     }
-    dispatch(logout());
-    navigate("/");
-    setOpen(true);
+    fetch(`${origin}/${baseUrl}/accounts/user/logout`, {
+      credentials: "include"
+    }).then(response => {
+      handleMenuClose()
+      setTimeout(() => {
+        store.dispatch(loadUser())
+      }, 500)
+    })
+    // dispatch(logout());
+    // navigate("/");
+    // setOpen(false);
   };
 
   const menuId = "primary-search-account-menu";
@@ -219,7 +230,7 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
           <>
             {user?.role === "seller" && (
               <ListItem disablePadding>
-                <ListItemButton onClick={handleSellerNavigate}>
+                <ListItemButton onClick={() => navigate("/dashboard")}>
                   <ListItemIcon>
                     <ListItemAvatar>
                       <Avatar sx={{ backgroundColor: "white" }}>
@@ -246,6 +257,24 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
               </ListItem>
             )}
             <Divider />
+            {user?.role === "seller" && (
+              <>
+                <ListItem disablePadding sx={{ border: "none" }}>
+                  <ListItemButton onClick={() => navigate(`/brand/${user.brand}`)}>
+                    <ListItemIcon>
+                      <ListItemAvatar>
+                        <Avatar sx={{ backgroundColor: "white" }}>
+                          <AddBusinessIcon sx={{ color: "black" }} />
+                        </Avatar>
+                      </ListItemAvatar>
+                    </ListItemIcon>
+                    <ListItemText primary="My Brand" />
+                  </ListItemButton>
+                </ListItem>
+                <Divider />
+              </>
+            )}
+            <Divider />
             <ListItem disablePadding>
               <ListItemButton onClick={handleProfileNav}>
                 <ListItemIcon>
@@ -257,9 +286,46 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
               </ListItemButton>
             </ListItem>
             <Divider />
-            <ListItem disablePadding onClick={logoutHandler}>
-              <ListItemButton>
-                <Typography color="warning">logout</Typography>
+            {user?.role === "user" && (
+              <>
+                <ListItem disablePadding sx={{ border: "none" }}>
+                  <ListItemButton onClick={() => navigate("/personal")}>
+                    <ListItemIcon>
+                      <ListItemAvatar>
+                        <Avatar sx={{ backgroundColor: "white" }}>
+                          <AddBusinessIcon sx={{ color: "black" }} />
+                        </Avatar>
+                      </ListItemAvatar>
+                    </ListItemIcon>
+                    <ListItemText primary="Create Brand" />
+                  </ListItemButton>
+                </ListItem>
+                <Divider />
+              </>
+            )}
+            <ListItem disablePadding sx={{ border: "none" }}>
+              <ListItemButton onClick={() => navigate("/orders/me")}>
+                <ListItemIcon>
+                  <ListItemAvatar>
+                    <Avatar sx={{ backgroundColor: "white" }}>
+                      {/* <Logout fontSize="small" sx={{ color: "black" }} /> */}
+                    </Avatar>
+                  </ListItemAvatar>
+                </ListItemIcon>
+                <ListItemText primary="My Orders" />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            <ListItem disablePadding sx={{ border: "none" }}>
+              <ListItemButton onClick={logoutHandler}>
+                <ListItemIcon>
+                  <ListItemAvatar>
+                    <Avatar sx={{ backgroundColor: "white" }}>
+                      <Logout fontSize="small" sx={{ color: "black" }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
               </ListItemButton>
             </ListItem>
           </>

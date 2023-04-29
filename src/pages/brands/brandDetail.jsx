@@ -7,7 +7,9 @@ import {
   ButtonGroup,
   IconButton,
   Skeleton,
+  Menu
 } from "@mui/material";
+import MenuItem from "@mui/material/MenuItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -94,8 +96,10 @@ function BrandDetail() {
   const dispatch = useDispatch();
   const { id } = params;
   const [navbar, setNavbar] = useState(true);
-  const [toggle, setToggle] = useState(true);
+  const [toggle, setToggle] = useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
+
+  const navigate = useNavigate()
 
   // const { brandDetail, loading, error } = useSelector(
   //   (state) => state.brandDetails
@@ -220,6 +224,15 @@ function BrandDetail() {
               </Typography>
             }
           </Stack>
+          {/* <Menu>
+            <MenuItem onClick={() => navigate("/newProduct")}>
+              Add Item
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => navigate("/myBrand")}>
+              Update Brand
+            </MenuItem>
+          </Menu> */}
           <div style={{ width: "100%" }}>
             {loading ? (
               <Skeleton

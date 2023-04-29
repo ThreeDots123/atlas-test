@@ -121,7 +121,7 @@ function InnerCard({ data }) {
     <section className="details">
       <div className="min-details">
         <h1>{data.title}</h1>
-        <h1 className="price">${data.price}</h1>
+        <h1 className="price">NGN {data.price}</h1>
       </div>
       <span onClick={addToCart} className="addtocartbtn">add to cart</span>
     </section>

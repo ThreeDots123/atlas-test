@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Typography, Box } from "@mui/material";
+import {
+  CircularProgress,
+  Typography,
+  Box,
+  Paper,
+  Stack,
+  Divider,
+  Switch,
+  Button,
+} from "@mui/material";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -7,31 +16,79 @@ import { getOrderDetails, clearErrors } from "../../redux/actions/orderAction";
 import { Container } from "@mui/system";
 import Navbar from "../../components/navbar/Navbar";
 import Footer from "../../components/footer/Footer";
+import { baseUrl, origin } from "../../urls";
 function OrderDetails() {
   const [errorMessage, setErrorMessage] = useState();
   const diapatch = useDispatch();
-  const { loading, error, order } = useSelector((state) => state.orderDetails);
+  const { error } = useSelector((state) => state.orderDetails);
+  const { user } = useSelector((state) => state.auth);
+  const [ loading, setLoading ] = useState(true)
+  const [ order, setOrder ] = useState(null)
+  const [ cancelling, setCancelling ] = useState(false)
   const { id } = useParams();
-  useEffect(() => {
-    diapatch(getOrderDetails(id));
-    if (error) {
-      setErrorMessage(error);
-      diapatch(clearErrors());
-    }
-  }, [diapatch, error, id]);
+
   const [navbar, setNavbar] = useState(true);
 
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  useEffect(() => {
+    fetch(`${origin}/${baseUrl}/orders/${id}`)
+    .then(response => {
+      return response.json()
+    }).then(data => {
+      if(data.success) {
+        setOrder(data.detail)
+        setLoading(false)
+      } else {
+        setLoading(false)
+      }
+    })
+  }, [])
+
+  const payment = true
+
+  function handleCancel(e) {
+    setCancelling(true)
+    e.target.disabled = true
+    
+    fetch(`${origin}/${baseUrl}/orders/${id}?type=cancel`, {
+      method: "PUT",
+      body: JSON.stringify({user: user.id}),
+      headers: {"Content-Type": "application/json"}
+    })
+    .then(response => {
+      if (response.status === 200) {
+        e.target.innerText = "This Order Has Been Cancelled"
+        e.target.disabled = true
+      } else {
+        e.target.disabled = false
+        setCancelling(false)
+      }
+    })
+  }
+
   return (
-    <>
-      <Navbar navbar={navbar} setNavbar={setNavbar} active="active2" />
+    <Box sx={{ background: "white" }}>
+      <Navbar
+        navbar={navbar}
+        setNavbar={setNavbar}
+        active="active2"
+        background="white"
+        border={true}
+      />
       <Box
         sx={{
           height: "auto",
           paddingTop: { md: "100px", xs: "65px" },
           paddingBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <div className="container container-fluid">
+        <>
           {loading ? (
             <Container
               fixed
@@ -44,135 +101,128 @@ function OrderDetails() {
             >
               <CircularProgress />
             </Container>
-          ) : (
-            <div className="row d-flex justify-content-between">
+          ) : <>
+            { !order ? <Typography sx={{
+                width: "100%",
+                marginTop: "15vh",
+                marginButtom: "15vh",
+                textAlign: "center",
+                fontSize: "2em",
+                fontWeight: "800",
+              }}
+            >
+              This Order Doesn't Exist
+            </Typography> : <Stack justifyContent="space-between" sx={{ width: "100%" }}>
+              {" "}
               {order && (
-                <div className="col-12 col-lg-8 mt-5 order-details">
-                  <Typography className="my-5">Order # {order._id}</Typography>
-
-                  <h2
-                    style={{
-                      width: "auto",
-                      paddingLeft: "6px",
-
-                      borderLeft: "10px solid #48e5c2",
-                      borderBottom: "0.1px solid #48e5c2",
-                      borderRadius: "10px",
-                      borderBottomRightRadius: "0px",
-                    }}
-                  >
-                    Shipping info
-                  </h2>
+                <Stack sx={{padding: { md: "0 20px" }}} spacing={2} direction="column">
+                  <Typography variant="h5">
+                    Order ID : {order.id}
+                  </Typography>
+                  <Divider />
+                  <Typography variant="h5">Shipping Info</Typography>
                   <Typography>
-                    <b>Name:</b> {order.user.name}
+                    <b>Name:</b> {order.name}
                   </Typography>
                   <Typography>
-                    <b>Phone:</b> {order.shippingInfo.phoneNumber}
+                    <b>Phone:</b> {order.phone}
                   </Typography>
-                  <Typography className="mb-4">
+                  <Typography>
                     <b>Address:</b>
-                    {order.shippingInfo.address}
+                    {` ${order.primary_loc} ${order.city}, ${order.state}`}
                   </Typography>
                   <Typography>
-                    <b>Amount:</b>
-                    <span style={{ color: "green" }}>&#8358;</span>
-                    {order.itemsPrice}
+                    <b>Amount: </b>
+                    &#8358;
+                    {numberWithCommas(parseFloat(order.price))}
                   </Typography>
 
-                  <hr />
+                  <Divider />
 
-                  <h2
-                    style={{
-                      width: "auto",
-                      paddingLeft: "6px",
+                  <Typography>
+                    <b>Payment: </b>
+                    { order.payment_status ? <Typography
+                        sx={{
+                          display: "inline-block",
+                          padding: "5px 15px",
+                          fontSize: "0.8em",
+                          borderRadius: "15px",
+                          color: "white",
+                          background: "#87d287",
+                        }}
+                      >
+                        Paid
+                      </Typography> : <Typography
+                        sx={{
+                          display: "inline-block",
+                          padding: "5px 15px",
+                          color: "white",
+                          fontSize: "0.8em",
+                          borderRadius: "15px",
+                          background: "#f3855a",
+                        }}
+                      >
+                        On Delivery
+                      </Typography> }
+                  </Typography>
 
-                      borderLeft: "10px solid #48e5c2",
-                      borderBottom: "0.1px solid #48e5c2",
-                      borderRadius: "10px",
-                      borderBottomRightRadius: "0px",
-                    }}
-                  >
-                    Payment
-                  </h2>
-                  <p className="greenColor">
-                    <b>{order.paymentInfo.status}</b>
-                  </p>
+                  <Typography>
+                    <b>Order Status: </b>
+                    {order.success && (
+                      <Typography
+                        sx={{
+                          display: "inline-block",
+                          padding: "5px 15px",
+                          fontSize: "0.8em",
+                          color: "white",
+                          borderRadius: "15px",
+                          background: "#87d287",
+                        }}
+                      >
+                        Delivered
+                      </Typography>
+                    )}
+                    {!order.success && (
+                      <Typography
+                        sx={{
+                          display: "inline-block",
+                          padding: "5px 15px",
+                          fontSize: "0.8em",
+                          color: "white",
+                          borderRadius: "15px",
+                          background: "#f3855a",
+                        }}
+                      >
+                        Processing
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Divider />
 
-                  <h2
-                    style={{
-                      width: "auto",
-                      paddingLeft: "6px",
-
-                      borderLeft: "10px solid #48e5c2",
-                      borderBottom: "0.1px solid #48e5c2",
-                      borderRadius: "10px",
-                      borderBottomRightRadius: "0px",
-                    }}
-                  >
-                    Order Status
-                  </h2>
-                  <p className="greenColor">
-                    <b>{order.orderStatus}</b>
-                  </p>
-
-                  <h2
-                    style={{
-                      width: "auto",
-                      paddingLeft: "6px",
-
-                      borderLeft: "10px solid #48e5c2",
-                      borderBottom: "0.1px solid #48e5c2",
-                      borderRadius: "10px",
-                      borderBottomRightRadius: "0px",
-                    }}
-                  >
-                    Order Items
-                  </h2>
-
-                  <hr />
-                  <div className="cart-item my-1">
-                    {order.orderItems.map((item) => (
-                      <div className="row my-5" key={item.book}>
-                        <div className="col-4 col-lg-2">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            height="45"
-                            width="65"
-                          />
-                        </div>
-
-                        <div className="col-5 col-lg-5">
-                          <Link to={`/book/${item.book}`}>{item.name}</Link>
-                        </div>
-
-                        <div className="col-4 col-lg-2 mt-4 mt-lg-0">
-                          <p>
-                            {" "}
-                            <span style={{ color: "green" }}>&#8358;</span>
-                            {item.price}
-                          </p>
-                        </div>
-
-                        <div className="col-4 col-lg-3 mt-4 mt-lg-0">
-                          <p> {item.quantity} Piece(s)</p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="cart-item my-1" style={{
+                    display: "flex",
+                    gap: "20px",
+                    alignItems: "center"
+                  }}>
+                      <h4>Cancel Order</h4>
+                      <Button 
+                        sx={{
+                          marginTop: "3px"
+                        }}
+                        onClick={handleCancel} 
+                        disabled={!order.active}
+                      >
+                        { cancelling ? <CircularProgress size={15} /> : (order.active ? "Cancel Order" : "This Order Has Been Cancelled") }
+                      </Button>
                   </div>
-                  <hr />
-                </div>
+                </Stack>
               )}
-
               {error && <Box sx={{ merginTop: "20vh" }}>{errorMessage}</Box>}
-            </div>
-          )}
-        </div>
+            </Stack>}
+          </>}
+        </>
       </Box>
-      <div className="footer" style={{ oveflow: "hidden" }}>
-        <Footer />
-      </div>
-    </>
+    </Box>
   );
 }
 

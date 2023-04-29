@@ -367,7 +367,7 @@ const ProductInformation = ({ data }) => {
       
       <div className='prices'>
         <div className='product-price'>
-          <h1>$125.00</h1>
+          <h1>&#8358; {parseFloat(data.price)}</h1>
           {/* <span>50%</span> */}
         </div>
         {/* <span className="real-price">$250.00</span> */}

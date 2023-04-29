@@ -14,33 +14,84 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { baseUrl, origin } from "../../urls";
 
 function createData(OrderID, NumOfItems, Amount, Status, Actions) {
   return { OrderID, NumOfItems, Amount, Status, Actions };
 }
 
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+// const orders = [
+//   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
+//   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
+//   createData("Eclair", 262, 16.0, 24, 6.0),
+//   createData("Cupcake", 305, 3.7, 67, 4.3),
+//   createData("Gingerbread", 356, 16.0, 49, 3.9),
+// ];
+
+
+const days = [
+  "Sun",
+  "Mon",
+  "Tues",
+  "Wed",
+  "Thurs",
+  "Fri",
+  "Sat"
+]
+
+const month = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+]
 
 export default function ListOrders() {
+
   const [open, setOpen] = useState(false);
   // const [errorMessage, setErrorMessage] = useState();
   const diapatch = useDispatch();
-  const { loading, error, orders } = useSelector((state) => state.myOrders);
+  // const { loading, error, orders } = useSelector((state) => state.myOrders);
   const [navbar, setNavbar] = useState(true);
+  const [orders, setOrders] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const { user } = useSelector(state => state.auth)
+
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
 
   useEffect(() => {
-    diapatch(myOrders());
-    if (error) {
-      setOpen(true);
-      diapatch(clearErrors());
+    // Load users orders
+    if(user.id) {
+      fetch(`${origin}/${baseUrl}/orders?user=${user.id}`)
+      .then(response => {
+        if (response.status === 400 || response.status === 200) return response.json()
+      }).then(data => {
+        if (data.success) {
+          setOrders(data.detail)
+          setLoading(false)
+        }
+      })
     }
-  }, [diapatch, error, open]);
+  }, [])
+
+  
+  // useEffect(() => {
+  //   diapatch(myOrders());
+  //   if (error) {
+  //     setOpen(true);
+  //     diapatch(clearErrors());
+  //   }
+  // }, [diapatch, error, open]);
   return (
     <>
       <Navbar navbar={navbar} setNavbar={setNavbar} active="active2" />
@@ -52,61 +103,74 @@ export default function ListOrders() {
           paddingBottom: "20px",
         }}
       >
-        <TableContainer component={Paper}>
+        <TableContainer component={Box}>
           <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
             <TableHead>
               <TableRow>
                 <TableCell>Order ID</TableCell>
-                <TableCell align="right">Num Of Items</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell align="right">Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell>Product Name</TableCell>
+                <TableCell>Num Of Items</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date Created</TableCell>
+                <TableCell>Payment</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {orders &&
-                orders.map((order) => (
-                  <TableRow
-                    key={order._id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {order._id}
-                    </TableCell>
-                    <TableCell align="right">
-                      {order.orderItems.length}
-                    </TableCell>
-                    <TableCell align="right">
-                      {
-                        <span style={{ color: "green" }}>
-                          &#8358;{order.itemsPrice}
-                        </span>
-                      }
-                    </TableCell>
-                    <TableCell align="right">
-                      {order.orderStatus &&
-                      String(order.orderStatus).includes("Delivered") ? (
-                        <p style={{ color: "green" }}>{order.orderStatus}</p>
-                      ) : (
-                        <p style={{ color: "red" }}>{order.orderStatus}</p>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {
-                        <Link to={`/order/${order._id}`}>
-                          <IconButton sx={{ "&:focus": { outline: "none" } }}>
-                            <AcUnitIcon color="primary" />
-                          </IconButton>
-                        </Link>
-                      }
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {loading || <>
+                {orders &&
+                  orders.map((order) => {
+                    let date = new Date(order.date_created)
+                    date = `${days[date.getDay()]} ${month[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+                    return <TableRow
+                      key={order.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {order.id}
+                      </TableCell>
+                      <TableCell>
+                        {order.product_name}
+                      </TableCell>
+                      <TableCell>
+                        {order.quantity}
+                      </TableCell>
+                      <TableCell>
+                        {
+                          <span style={{ color: "green" }}>
+                            &#8358;{numberWithCommas(parseFloat(order.price))}
+                          </span>
+                        }
+                      </TableCell>
+                      <TableCell>
+                        {
+                          order.active ? (order.success ? <p style={{ color: "green" }}>Delivered</p> : <p style={{ color: "red" }}>Processing</p>) :
+                          <p style={{ color: "gray" }} >Cancelled</p>
+                        }
+                      </TableCell>
+                      <TableCell>{date}</TableCell>
+                      <TableCell>
+                        { order.payment_status ? <p style={{ color: "green" }}>Paid</p> : <p style={{ color: "gray" }} >On Delivery</p> }
+                      </TableCell>
+                      <TableCell>
+                        {
+                          <Link to={`/order/${order.id}`}>
+                            <IconButton sx={{ "&:focus": { outline: "none" } }}>
+                              <AcUnitIcon color="primary" />
+                            </IconButton>
+                          </Link>
+                        }
+                      </TableCell>
+                    </TableRow>
+                  })} 
+                </>}
               {loading && (
                 <Container
                   fixed
                   sx={{
                     height: "60vh",
+                    width: "100%",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -134,9 +198,6 @@ export default function ListOrders() {
           )}
         </TableContainer>
       </Box>
-      <div className="footer" style={{ oveflow: "hidden" }}>
-        <Footer />
-      </div>
     </>
   );
 }

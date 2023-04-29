@@ -23,15 +23,16 @@ import { Stack } from "@mui/system";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { LoadingButton } from "@mui/lab";
-import { saveShippingInfo } from "../redux/actions/cartAction";
+import { saveShippingInfo } from "../../redux/actions/cartAction";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { addItemToCart, removeItemFromcart } from "../redux/actions/cartAction";
+import { addItemToCart, removeItemFromcart } from "../../redux/actions/cartAction";
 import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
 import { countries } from "countries-list";
-import { states } from "../utils/stateData";
+import { states } from "../../utils/stateData";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import Checkout from "./order details";
 
 const Cart = ({ open, setOpen }) => {
   const dispatch = useDispatch();
@@ -39,6 +40,10 @@ const Cart = ({ open, setOpen }) => {
   const [shipping, setShipping] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const { cartItems } = useSelector((state) => state.cart);
+  const { loading, isAuthenticated, logError } = useSelector(
+    (state) => state.auth
+  );
+
   const increaseQty = (id, quantity, stock) => {
     const newQty = quantity + 1;
     if (newQty >= stock) return;
@@ -137,39 +142,42 @@ const Cart = ({ open, setOpen }) => {
       navigate("/home");
     }
   };
-  return (
-    <Drawer
+  return <Drawer
       anchor="right"
       open={open}
       PaperProps={{
         sx: {
           margin: "10px 20px",
-          width: { md: "30%", xs: "90%" },
+          width: { md: "350px", xs: "90%" },
           height: "95vh",
+          maxHeight: "650px",
           borderRadius: "15px",
+          // position: "relative"
         },
         className: "cartmain",
       }}
     >
-      {!shipping && !confirm && (
-        <Box sx={{ padding: "10px" }}>
+      <div style={{display: "flex", padding: "5px 0", width: "100%", justifyContent: "flex-end"}}>
+        <IconButton
+          onClick={handleClose}
+          sx={{ "&:focus": { outline: "none" } }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </div>
+      {!shipping && (
+        <Box sx={{ padding: "10px", height: "100%", display: "flex", flexDirection: "column" }}>
           <Stack
             direction="row"
             justifyContent="space-between"
             sx={{
               alignItems: "center",
-              padding: "5px 0px",
+              padding: "5px 0px"
             }}
           >
             <Typography sx={{ fontWeight: "700", fontSize: "1.4em" }}>
               Your Cart
             </Typography>
-            <IconButton
-              onClick={handleClose}
-              sx={{ "&:focus": { outline: "none" } }}
-            >
-              <CloseIcon />
-            </IconButton>
           </Stack>
           <Divider sx={{ marginTop: "10px" }} />
           <Stack
@@ -312,7 +320,7 @@ const Cart = ({ open, setOpen }) => {
               </List>
               <Divider sx={{ marginTop: "10px" }} />
 
-              <Box sx={{ width: "100%" }}>
+              <Box sx={{ width: "100%", marginTop: "auto" }}>
                 <Typography sx={{ fontWeight: "500", fontSize: "1.1em" }}>
                   Cart Summary
                 </Typography>
@@ -364,254 +372,21 @@ const Cart = ({ open, setOpen }) => {
           )}
         </Box>
       )}
-      {shipping && (
-        <Stack direction="column" sx={{ padding: "5px", marginTop: "15px" }}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            sx={{
-              alignItems: "center",
-              padding: "5px 0px",
-            }}
-          >
-            <Typography sx={{ fontWeight: "700", fontSize: "1.4em" }}>
-              Shipping Info
-            </Typography>
-            <IconButton
-              onClick={handleClose}
-              sx={{ "&:focus": { outline: "none" } }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-          <Divider sx={{ marginTop: "10px" }} />{" "}
-          <FormControl onSubmit={submitHandler} sx={{ padding: "8px" }}>
-            <Stack direction="column" spacing={2}>
-              <TextField
-                label="Address"
-                type="text"
-                name="Address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-              />
-
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">City</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={city}
-                  label="Age"
-                  name="location"
-                  onChange={(e) => setCity(e.target.value)}
-                >
-                  {states.map((state) => (
-                    <MenuItem key={state} value={state}>
-                      {state}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <TextField
-                label="phone"
-                type="phone"
-                name="phone"
-                value={phoneNumber}
-                onChange={(e) => setPoneNumber(e.target.value)}
-                required
-              />
-              <TextField
-                label="Postal Code"
-                type="number"
-                name="Postal Code"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                required
-              />
-
-              <TextField
-                label="Street"
-                type="text"
-                name="Street"
-                value={campus}
-                onChange={(e) => setCampus(e.target.value)}
-                required
-              />
-
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Country</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={country}
-                  label="Country"
-                  name="Country"
-                  onChange={(e) => setCountry(e.target.value)}
-                >
-                  {countriesList.map((country) => (
-                    <MenuItem key={country.name} value={country.name}>
-                      {country.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Button
-                onClick={submitHandler}
-                color="primary"
-                type="submit"
-                variant="contained"
-                sx={{ "&:focus": { outline: "none" }, width: "100%" }}
-              >
-                CONTINUE
-              </Button>
-            </Stack>
-          </FormControl>
-        </Stack>
-      )}
-      {confirm && (
-        <Box sx={{ padding: "15px" }}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            sx={{
-              alignItems: "center",
-              padding: "5px 0px",
-            }}
-          >
-            <Typography sx={{ fontWeight: "700", fontSize: "1.4em" }}>
-              Confirm Order
-            </Typography>
-            <IconButton
-              onClick={handleClose}
-              sx={{ "&:focus": { outline: "none" } }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-          <Divider sx={{ marginTop: "10px" }} />{" "}
-          <Stack direction="column" spacing={5}>
-            <Box sx={{ padding: "10px" }}>
-              <Typography sx={{ fontWeight: "500", fontSize: "1.1em" }}>
-                Shipping Info
-              </Typography>
-              <Divider />
-              <Typography>
-                <b>Name:</b> {user && user.name}
-              </Typography>
-              <Typography>
-                <b>Phone:</b> {shippingInfo.phoneNumber}
-              </Typography>
-              <Typography className="mb-4">
-                <b>Address:</b>{" "}
-                {`${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.campus}, ${shippingInfo.postalCode}, ${shippingInfo.country}`}
-              </Typography>
-
-              <Typography sx={{ fontWeight: "500", fontSize: "1.1em" }}>
-                Your Cart items
-              </Typography>
-              <Divider />
-              <List
-                sx={{
-                  width: "100%",
-                  bgcolor: "background.paper",
-                }}
-              >
-                {cartItems.map((item) => (
-                  <ListItem
-                    key={item.book}
-                    sx={{ paddingLeft: "0px !important" }}
-                  >
-                    <ListItemAvatar sx={{ marginRight: "5px" }}>
-                      <Avatar
-                        alt={item.name}
-                        src={item.image}
-                        sx={{ width: 100, height: 100, borderRadius: "12px" }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={item.name}
-                      secondary={
-                        <p>
-                          {item.quantity} x{" "}
-                          <span style={{ color: "gray" }}>&#8358;</span>
-                          {numberWithCommas(Number(item.price))} ={" "}
-                          <b>
-                            {" "}
-                            <span style={{ color: "gray" }}>&#8358;</span>
-                            {numberWithCommas(
-                              Number(item.quantity * item.price)
-                            )}
-                          </b>
-                        </p>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-
-            <Box sx={{ padding: "10px" }}>
-              <h4>Order Summary</h4>
-              <hr />
-              <p>
-                Subtotal:{" "}
-                <span className="order-summary-values">
-                  {" "}
-                  <span style={{ color: "gray" }}>&#8358;</span>
-                  {numberWithCommas(Number(itemsPrice))}
-                </span>
-              </p>
-              <p>
-                Shipping:{" "}
-                <span className="order-summary-values">
-                  {" "}
-                  <span style={{ color: "gray" }}>&#8358;</span>
-                  {numberWithCommas(Number(shippingPrice))}
-                </span>
-              </p>
-              <p>
-                Tax:{" "}
-                <span className="order-summary-values">
-                  {" "}
-                  <span style={{ color: "gray" }}>&#8358;</span>
-                  {numberWithCommas(Number(taxPrice))}
-                </span>
-              </p>
-
-              <hr />
-
-              <p>
-                Total:{" "}
-                <span className="order-summary-values">
-                  {" "}
-                  <span style={{ color: "gray" }}>&#8358;</span>
-                  {numberWithCommas(Number(totalPrice))}
-                </span>
-              </p>
-
-              <hr />
-
-              <Stack>
-                <Button
-                  onClick={processToPayment}
-                  color="primary"
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    "&:focus": { outline: "none" },
-                  }}
-                >
-                  Proceed to Payment
-                </Button>
-              </Stack>
-            </Box>
-          </Stack>
-        </Box>
-      )}
-    </Drawer>
-  );
+    {shipping && <>
+      { isAuthenticated ? <Checkout products={cartItems} setShipping={setShipping} /> : <div 
+        style={{display:"flex", alignItems: "center", justifyContent:"center", height: "100%", width: "100%"}}>
+        <Typography sx={{
+            width: "90%",
+            fontSize: "30px",
+            fontWeight: "3em",
+            textAlign: "center"
+          }}>
+            Please Log Into Your Account
+          </Typography>
+          <Link to={"/sign-in"} />
+      </div> }
+    </>}
+  </Drawer>
 };
 
 export default Cart;

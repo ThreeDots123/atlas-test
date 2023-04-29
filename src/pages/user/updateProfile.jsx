@@ -16,7 +16,7 @@ import {
   InputLabel,
   MenuItem,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
 import {
   updateProfile,
@@ -26,6 +26,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { UPDATE_PROFILE_RESET } from "../../redux/constants/userConstants";
 import { states } from "../../utils/stateData";
+import { baseUrl, origin } from "../../urls";
+import store from "../../redux/store";
 
 const SnackbarAlert = forwardRef(function SnackbarAlert(props, ref) {
   return <Alert severity="success" elevation={6} ref={ref} {...props} />;
@@ -39,7 +41,8 @@ function UpdateProfile() {
 
   const [open, setOpen] = useState(false);
   const [Message, setMessage] = useState(null);
-  const [name, setName] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [email, setemail] = useState("");
   const [location, setLocation] = useState("");
   // const [course, setCourse] = useState("");
@@ -48,6 +51,8 @@ function UpdateProfile() {
   const [accountNumber, setAccountNumber] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [updatingInfo, setUpdatingInfo] = useState(false);
+  const [snackbar, setSnackbar] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(
     "/images/default_Avater.png"
   );
@@ -59,7 +64,7 @@ function UpdateProfile() {
       clearErrors();
     }
     if (user) {
-      setName(user?.name);
+      // setName(user?.name);
       setemail(user?.email);
       // setCourse(user?.courseOfStudy);
       setLocation(user?.location);
@@ -81,24 +86,35 @@ function UpdateProfile() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.set("name", name);
-    formData.set("email", email);
-    formData.set("campus", location);
-    // formData.set("course", course);
-    formData.set("avatar", avatar);
+    formData.append("first_name", firstname);
+    formData.append("last_name", lastname);
+    formData.append("email", email);
+    // formData.append("campus", location);
+    // formData.append("course", course);
+    formData.append("avatar", avatar);
+    formData.append("user", user.id);
 
-    dispatch(updateProfile(formData));
+    // dispatch(updateProfile(formData));
+
+    setUpdatingInfo(true)
+
+    fetch(`${origin}/${baseUrl}/accounts/user/update`, {
+      method: "PUT",
+      body: formData
+    }).then(response => {
+      if (response.status === 200) {
+        setSnackbar(true)
+        store.dispatch(loadUser())
+        navigate("/me")
+      } else {
+        setUpdatingInfo(false)
+      }
+    })
+
   };
 
   const handleChange = (e) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatarPreview(reader.result);
-        setAvatar(reader.result);
-      }
-    };
-    reader.readAsDataURL(e.target.files[0]);
+    setAvatar(e.target.files[0]);
   };
 
   const handleClose = (e, reason) => {
@@ -111,12 +127,10 @@ function UpdateProfile() {
   return (
     <Box
       sx={{
-        height: "50vh",
+        height: "100vh",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        marginTop: "60vh",
-        marginBottom: "40vh",
+        justifyContent: "center"
       }}
     >
       {loading ? (
@@ -143,21 +157,27 @@ function UpdateProfile() {
             </>
           )}
           <TextField
-            label="name"
+            label="first name"
             type="text"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="first name"
+            onChange={(e) => setFirstname(e.target.value)}
           />
 
           <TextField
-            label="Emial Address"
+            label="last name"
+            type="text"
+            name="last name"
+            onChange={(e) => setLastname(e.target.value)}
+          />
+
+          {/* <TextField
+            label="Email Address"
             name="email"
             type="text"
             value={email}
             onChange={(e) => setemail(e.target.value)}
-          />
-          <TextField
+          /> */}
+          {/* <TextField
             label="Campus"
             name="campus"
             type="text"
@@ -180,7 +200,7 @@ function UpdateProfile() {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
 
           {user && user.requested && (
             <>
@@ -260,24 +280,14 @@ function UpdateProfile() {
             <LoadingButton
               onClick={handleSubmit}
               variant="contained"
-              loading={updating ? true : false}
+              loading={updatingInfo}
               sx={{ "&:focus": { outline: "none" }, width: "30vw" }}
             >
               Update Profile
             </LoadingButton>
           </Stack>
 
-          <Typography>
-            Already have an account{" "}
-            <Link to="/sign-in" sx={{ cursor: "pointer" }}>
-              {" "}
-              <Typography variant="h5" color="primary">
-                SIgn In
-              </Typography>{" "}
-            </Link>
-          </Typography>
-
-          <Snackbar open={open} autoHideDuration={4000} onClose={handleClose}>
+          <Snackbar open={snackbar} autoHideDuration={4000} onClose={() => setSnackbar(false)}>
             <SnackbarAlert>
               <Typography>profile updated</Typography>
             </SnackbarAlert>

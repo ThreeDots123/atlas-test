@@ -20,7 +20,38 @@ import {
   GET_REVIEW_SUCCESS,
   GET_REVIEW_FAIL,
   CLEAR_ERRORS,
+  CREATE_PRODUCTS_REQUEST,
+  CREATE_PRODUCTS_SUCCESS,
+  CREATE_PRODUCTS_FAIL,
+  ADMIN_GET_PRODUCTS_REQUEST,
+  ADMIN_GET_PRODUCTS_SUCCESS,
+  ADMIN_GET_PRODUCTS_FAIL,
+  DELETE_PRODUCTS_REQUEST,
+  DELETE_PRODUCTS_SUCCESS,
+  DELETE_PRODUCTS_FAIL,
+  DELETE_PRODUCTS_RESET,
+  UPDATE_PRODUCTS_REQUEST,
+  UPDATE_PRODUCTS_SUCCESS,
+  UPDATE_PRODUCTS_FAIL,
+  UPDATE_PRODUCTS_RESET,
 } from "../constants/productConstants";
+
+export const createProduct = (Data) => async (dispatch) => {
+  try {
+    dispatch({ type: CREATE_PRODUCTS_REQUEST });
+
+    const { data } = await axios.post(`/api/v1/admin/createProduct`, Data, {
+      withCredentials: true,
+      credentials: "include",
+    });
+    dispatch({ type: CREATE_PRODUCTS_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({
+      type: CREATE_PRODUCTS_FAIL,
+      payload: error.message,
+    });
+  }
+};
 
 export const getTrendingProducts = () => async (dispatch) => {
   try {
@@ -95,6 +126,7 @@ export const getRecommendedProduct = (id) => async (dispatch) => {
 
 export const postProductReview = (formData) => async (dispatch) => {
   try {
+    console.log(formData);
     dispatch({ type: PRODUCT_REVIEW_REQUEST });
     const { data } = await axios.put(`/api/v1/review`, formData, {
       withCredentials: true,
@@ -124,6 +156,63 @@ export const getProductReviews = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_REVIEW_FAIL,
+      payload: error.message,
+    });
+  }
+};
+
+export const adminGetProducts = () => async (dispatch) => {
+  try {
+    dispatch({ type: ADMIN_GET_PRODUCTS_REQUEST });
+
+    const { data } = await axios.get("/api/v1/admin/products", {
+      withCredentials: true,
+      credentials: "include",
+    });
+    dispatch({
+      type: ADMIN_GET_PRODUCTS_SUCCESS,
+      payload: data.products,
+    });
+  } catch (error) {
+    dispatch({
+      type: ADMIN_GET_PRODUCTS_FAIL,
+      payload: error.message,
+    });
+  }
+};
+export const deleteProduct = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: DELETE_PRODUCTS_REQUEST });
+
+    const { data } = await axios.delete(`/api/v1/admin/product/${id}`, {
+      withCredentials: true,
+      credentials: "include",
+    });
+    dispatch({ type: DELETE_PRODUCTS_SUCCESS, payload: data.success });
+
+    dispatch({ type: DELETE_PRODUCTS_RESET });
+  } catch (error) {
+    dispatch({
+      type: DELETE_PRODUCTS_FAIL,
+      payload: error.message,
+    });
+  }
+};
+
+export const updateProduct = (id, formData) => async (dispatch) => {
+  try {
+    dispatch({ type: UPDATE_PRODUCTS_REQUEST });
+    const { data } = await axios.put(`/api/v1/admin/product/${id}`, formData, {
+      withCredentials: true,
+      credentials: "include",
+    });
+    dispatch({ type: UPDATE_PRODUCTS_SUCCESS, payload: data.success });
+    setTimeout(() => {
+      dispatch({ type: UPDATE_PRODUCTS_RESET });
+    }, 1500);
+  } catch (error) {
+    dispatch({
+      type: UPDATE_PRODUCTS_FAIL,
       payload: error.message,
     });
   }
