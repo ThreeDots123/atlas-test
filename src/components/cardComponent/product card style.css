@@ -7,7 +7,7 @@
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
   height: 250px;
   overflow: hidden;
-  width: 250px;
+  width: 186px;
 }
 
 .productcard > figure {
@@ -52,8 +52,15 @@
   font-family: "Chivo Mono";
 }
 
+.details > .min-details > .price {
+  font-size: 0.9rem;
+  font-family: "Chivo Mono";
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .details > .min-details > h1:first-child{
-  width: 100px;
+  width: 70px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

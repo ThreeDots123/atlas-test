@@ -179,6 +179,7 @@ function BrandProoducts({
               padding: "0",
               width: "auto",
               overFlow: "hidden",
+              justifyContent: { xs: "center", sm: "flex-start" },
             }}
           >
             {loading ? <ProductCardLoader /> : <>
