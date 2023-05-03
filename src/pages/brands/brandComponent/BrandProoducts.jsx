@@ -180,6 +180,7 @@ function BrandProoducts({
               width: "auto",
               overFlow: "hidden",
               justifyContent: { xs: "center", sm: "flex-start" },
+              gap: "30px"
             }}
           >
             {loading ? <ProductCardLoader /> : <>

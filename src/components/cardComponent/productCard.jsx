@@ -134,8 +134,8 @@ export default function ProductCard({ data }) {
   data.price = parseFloat(data.price)
 
   return (
-    <Box item sx={{ margin: "20px 0" }}>
+    <Grid item sx={{ margin: "20px 0", paddingLeft: "0 !important" }}>
       <InnerCard data={data} />
-    </Box>
+    </Grid>
   );
 }
