@@ -55,8 +55,8 @@ const findMe = async (access) => {
     body: JSON.stringify({access}),
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${access}`
-    }
+      Authorization: `Bearer ${access}`,
+    },
   })
   const data = await response.json()
   return data

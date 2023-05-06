@@ -474,7 +474,7 @@ function ProcessOrder() {
                               >
                                 {
                                   order.success ? <option value="Delivered">Delivered</option> : <>
-                                    <option value="Delivered">Update To Delivered</option>
+                                    <option value="Update To Delivered">Update To Delivered</option>
                                   </>
                                 }
                               </select>
@@ -482,7 +482,7 @@ function ProcessOrder() {
 
                             <Stack>
                               <LoadingButton
-                                disabled={order.success}
+                                disabled={order.success || updated}
                                 id="login_button"
                                 type="submit"
                                 color="primary"

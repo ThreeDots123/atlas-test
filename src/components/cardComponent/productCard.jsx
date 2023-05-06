@@ -105,6 +105,8 @@ import "./product card style.css"
 
 function InnerCard({ data }) {
 
+  console.log(data)
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [cart, setCart] = useState(false);
@@ -123,7 +125,10 @@ function InnerCard({ data }) {
         <h1>{data.title}</h1>
         <h1 className="price">NGN {data.price}</h1>
       </div>
-      <span onClick={addToCart} className="addtocartbtn">add to cart</span>
+      {
+        data.supply > 0 ? <span onClick={addToCart} className="addtocartbtn">add to cart</span> :
+        <span className="addtocartbtn" style={{backgroundColor: "gray", cursor: "default"}} >out of stock</span>
+      }
     </section>
   </div>
 }

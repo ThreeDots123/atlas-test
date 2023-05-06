@@ -198,6 +198,7 @@ function Navbar({ home=false, navbar, setNavbar, active }) {
     }).then(response => {
       handleMenuClose()
       setTimeout(() => {
+        navigate("/")
         store.dispatch(loadUser())
       }, 500)
     })
